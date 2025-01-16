@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -25,36 +26,31 @@ public class ProductService {
         return productRepository.findAll();
     }
 
-    public void saveProducts(Product product, MultipartFile file1, MultipartFile file2, MultipartFile file3) throws IOException {
-        List<Image> images = new ArrayList<>();
-
-        if (file1.getSize() != 0) {
-            Image img1 = toImageEntity(file1);
-            img1.setPreviewImage(true);
-            images.add(img1);
-        }
-        if (file2.getSize() != 0) {
-            Image img2 = toImageEntity(file2);
-            images.add(img2);
-        }
-        if (file3.getSize() != 0) {
-            Image img3 = toImageEntity(file3);
-            images.add(img3);
-        }
-
-        for (Image image : images) {
-            image.setProduct(product);
-        }
-
-        product.setImages(images);
-        log.info("Saving new Product.Title {}", product.getTitle());
-        Product savedProduct = productRepository.save(product);
+    public void saveProducts(Product product, MultipartFile... files) throws IOException {
+        List<Image> images = Arrays.stream(files)
+                .filter(file -> file != null && file.getSize() > 0)
+                .map(file -> {
+                    try {
+                        return toImageEntity(file);
+                    } catch (IOException e) {
+                        throw new RuntimeException("Error converting file to Image entity", e);
+                    }
+                })
+                .collect(Collectors.toList());
 
         if (!images.isEmpty()) {
+            images.get(0).setPreviewImage(true);
+            images.forEach(image -> image.setProduct(product));
+            product.setImages(images);
+
+            Product savedProduct = productRepository.save(product);
             savedProduct.setPreviewImageId(images.get(0).getId());
             productRepository.save(savedProduct);
+        } else {
+            productRepository.save(product);
         }
     }
+
 
     @Transactional
     public void updateProductFields(Long id, String title, String description, Integer price, String city, String author) {

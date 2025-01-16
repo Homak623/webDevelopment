@@ -11,7 +11,7 @@
 <h1>My_first_shop</h1>
 <hr>
 Товары со всей Беларуси
-<form action="/" method="post">
+<form action="/" method="get">
     Поиск по
     названию обьявления<input type="text" name="title"/><br>
     описанию обьявления<input type="text" name="description"/><br>
