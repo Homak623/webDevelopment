@@ -98,16 +98,14 @@ public class ProductService {
       return  productRepository.findById(id).orElse(null);
     }
 
-    public List<Product> getProducts(String title, String description, int price, String city, String author) {
+    public List<Product> getProducts(String title, String description, Integer price, String city, String author) {
         return productRepository.findAll().stream()
                 .filter(product -> title == null || title.trim().isEmpty() || product.getTitle().toLowerCase().contains(title.trim().toLowerCase()))
                 .filter(product -> description == null || description.trim().isEmpty() || product.getDescription().toLowerCase().contains(description.trim().toLowerCase()))
-                .filter(product -> price <= 0 || product.getPrice() == price)
+                .filter(product -> price == null || price <= 0 || product.getPrice() == price)
                 .filter(product -> city == null || city.trim().isEmpty() || product.getCity().toLowerCase().contains(city.trim().toLowerCase()))
                 .filter(product -> author == null || author.trim().isEmpty() || product.getAuthor().toLowerCase().contains(author.trim().toLowerCase()))
                 .collect(Collectors.toList());
     }
-
-
 }
 

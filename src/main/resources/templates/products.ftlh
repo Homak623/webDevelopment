@@ -15,7 +15,7 @@
     Поиск по
     названию обьявления<input type="text" name="title"/><br>
     описанию обьявления<input type="text" name="description"/><br>
-    цене: <input type="number" name="price"/><br>
+    цене: <input type="number" name="price" min="0" step="1" />
     городу: <input type="text" name="city"/><br>
     автору: <input type="text" name="author"/><br>
     <input type="submit" value="Поиск">
