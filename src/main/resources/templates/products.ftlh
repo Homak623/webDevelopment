@@ -10,9 +10,14 @@
 <body>
 <h1>My_first_shop</h1>
 <hr>
-Товары со всей России
-<form action="/" method="get">
-    Поиск по названию обьявления<input type="text" name="title"><br>
+Товары со всей Беларуси
+<form action="/" method="post">
+    Поиск по
+    названию обьявления<input type="text" name="title"/><br>
+    описанию обьявления<input type="text" name="description"/><br>
+    цене: <input type="number" name="price"/><br>
+    городу: <input type="text" name="city"/><br>
+    автору: <input type="text" name="author"/><br>
     <input type="submit" value="Поиск">
 </form>
 <#list products as product>

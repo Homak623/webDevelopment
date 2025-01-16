@@ -26,17 +26,11 @@
 <h2>Редактировать товар</h2>
 <form action="/product/update/${product.id}" method="post">
     <input type="hidden" name="_method" value="PATCH"/>
-
     Название:<input type="text" name="title"/><br><br>
-
     Описание:<input type="text" name="description"/><br><br>
-
     Цена:<input type="number" name="price"/><br><br>
-
     Город:<input type="text" name="city" /><br><br>
-
     Автор:<input type="text" name="author" /><br><br>
-
     <button type="submit">Сохранить изменения</button>
 </form>
 
