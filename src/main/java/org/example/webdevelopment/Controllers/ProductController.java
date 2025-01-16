@@ -9,6 +9,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -16,17 +17,32 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping("/")
-    public String products(@RequestParam(name = "title", required = false) String title, Model model) {
-        if (title != null && !title.isEmpty())
-        {
-            model.addAttribute("products", productService.getProductsByTitle(title));
-        }
-        else
-        {
+    public String products(@ModelAttribute Product product, Model model) {
+
+            boolean hasFilters = (product.getTitle() != null && !product.getTitle().trim().isEmpty()) ||
+                    (product.getDescription() != null && !product.getDescription().trim().isEmpty()) ||
+                    (product.getPrice() > 0) ||
+                    (product.getCity() != null && !product.getCity().trim().isEmpty()) ||
+                    (product.getAuthor() != null && !product.getAuthor().trim().isEmpty());
+
+            if (hasFilters) {
+                List<Product> filteredProducts = productService.getProducts(
+                        product.getTitle(),
+                        product.getDescription(),
+                        product.getPrice(),
+                        product.getCity(),
+                        product.getAuthor()
+                );
+                model.addAttribute("products", filteredProducts);
+            }
+        else {
+
             model.addAttribute("products", productService.getList());
         }
+
         return "products";
     }
+
 
 
     @GetMapping("/product/{id}")
