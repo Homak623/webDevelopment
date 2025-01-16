@@ -1,9 +1,11 @@
 package org.example.webdevelopment.Controllers;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.webdevelopment.Models.Product;
 import org.example.webdevelopment.ProductService;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.ui.Model;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,33 +19,31 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping("/")
-    public String products(@ModelAttribute Product product, Model model) {
+    public String products(@ModelAttribute Product product, Model model,BindingResult bindingResult)
+    {
+            if(!bindingResult.hasErrors()) {
+                boolean hasFilters = (product.getTitle() != null && !product.getTitle().trim().isEmpty()) ||
+                        (product.getDescription() != null && !product.getDescription().trim().isEmpty()) ||
+                        (product.getPrice() > 0) ||
+                        (product.getCity() != null && !product.getCity().trim().isEmpty()) ||
+                        (product.getAuthor() != null && !product.getAuthor().trim().isEmpty());
 
-            boolean hasFilters = (product.getTitle() != null && !product.getTitle().trim().isEmpty()) ||
-                    (product.getDescription() != null && !product.getDescription().trim().isEmpty()) ||
-                    (product.getPrice() > 0) ||
-                    (product.getCity() != null && !product.getCity().trim().isEmpty()) ||
-                    (product.getAuthor() != null && !product.getAuthor().trim().isEmpty());
+                if (hasFilters) {
+                    List<Product> filteredProducts = productService.getProducts(
+                            product.getTitle(),
+                            product.getDescription(),
+                            product.getPrice(),
+                            product.getCity(),
+                            product.getAuthor()
+                    );
+                    model.addAttribute("products", filteredProducts);
+                } else {
 
-            if (hasFilters) {
-                List<Product> filteredProducts = productService.getProducts(
-                        product.getTitle(),
-                        product.getDescription(),
-                        product.getPrice(),
-                        product.getCity(),
-                        product.getAuthor()
-                );
-                model.addAttribute("products", filteredProducts);
+                    model.addAttribute("products", productService.getList());
+                }
             }
-        else {
-
-            model.addAttribute("products", productService.getList());
-        }
-
         return "products";
     }
-
-
 
     @GetMapping("/product/{id}")
     public String productInfo(@PathVariable long id, Model model) {
@@ -58,20 +58,38 @@ public class ProductController {
 
     @PatchMapping("/product/update/{id}")
     public String updateProduct(@PathVariable long id,
-                                @RequestParam(required = false) String title,
-                                @RequestParam(required = false) String description,
-                                @RequestParam(required = false) Integer price,
-                                @RequestParam(required = false) String city,
-                                @RequestParam(required = false) String author) {
-        productService.updateProductFields(id, title, description, price, city, author);
+                                @Valid Product product,
+                                BindingResult bindingResult,
+                                Model model) {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("errors", bindingResult.getFieldErrors());
+            model.addAttribute("product", productService.getProductsById(id));
+            return "product-info";
+        }
+        productService.updateProductFields(
+                id,
+                product.getTitle(),
+                product.getDescription(),
+                product.getPrice(),
+                product.getCity(),
+                product.getAuthor()
+        );
         return "redirect:/product/" + id;
     }
 
     @PostMapping("/product/create")
-    public String createProduct(Product product,@RequestParam(name="file1") MultipartFile file1,
-                                @RequestParam(name="file2")MultipartFile file2,
-                                @RequestParam(name="file3")MultipartFile file3)  throws IOException {
-        productService.saveProducts(product,file1,file2,file3);
+    public String createProduct(@Valid @ModelAttribute Product product,
+                                @RequestParam(name = "file1", required = false) MultipartFile file1,
+                                @RequestParam(name = "file2", required = false) MultipartFile file2,
+                                @RequestParam(name = "file3", required = false) MultipartFile file3,
+                                BindingResult bindingResult,
+                                Model model) throws IOException {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("errors", bindingResult.getFieldErrors());
+            model.addAttribute("product", product);
+            return "products";
+        }
+        productService.saveProducts(product, file1, file2, file3);
         return "redirect:/";
     }
 
