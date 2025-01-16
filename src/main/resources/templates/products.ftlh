@@ -8,7 +8,7 @@
     <title>Document</title>
 </head>
 <body>
-<h1>BUYSELL</h1>
+<h1>My_first_shop</h1>
 <hr>
 Товары со всей России
 <form action="/" method="get">
