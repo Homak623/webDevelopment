@@ -56,25 +56,29 @@ public class ProductController {
         return "product-info";
     }
 
-    @PatchMapping("/product/update/{id}")
+    @PostMapping("/product/update/{id}")
     public String updateProduct(@PathVariable long id,
                                 @Valid Product product,
                                 BindingResult bindingResult,
-                                Model model) {
+                                Model model
+                                ) {
+
         if (bindingResult.hasErrors()) {
             model.addAttribute("errors", bindingResult.getFieldErrors());
-            model.addAttribute("product", productService.getProductsById(id));
+            model.addAttribute("product", product);
             return "product-info";
         }
-        productService.updateProductFields(
-                id,
-                product.getTitle(),
-                product.getDescription(),
-                product.getPrice(),
-                product.getCity(),
-                product.getAuthor()
-        );
-        return "redirect:/product/" + id;
+        else {
+            productService.updateProductFields(
+                    id,
+                    product.getTitle(),
+                    product.getDescription(),
+                    product.getPrice(),
+                    product.getCity(),
+                    product.getAuthor()
+            );
+            return "redirect:/product/" + id;
+        }
     }
 
     @PostMapping("/product/create")

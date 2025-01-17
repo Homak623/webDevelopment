@@ -27,7 +27,6 @@
 
 <h2>Редактировать товар</h2>
 <form action="/product/update/${product.id}" method="post">
-    <input type="hidden" name="_method" value="PATCH" />
 
     <label>Название: <input type="text" name="title" value="${product.title!}" /></label>
     <#if errors?has_content && errors?filter(it -> it.field == "title")?has_content>

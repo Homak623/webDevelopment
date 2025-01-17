@@ -52,7 +52,6 @@ public class ProductService {
     }
 
 
-    @Transactional
     public void updateProductFields(Long id, String title, String description, Integer price, String city, String author) {
         Product product = productRepository.findById(id).orElseThrow(() ->
                 new IllegalArgumentException("Product not found with id: " + id)
