@@ -27,6 +27,8 @@ public class ProductService {
     }
 
     public void saveProducts(Product product, MultipartFile... files) throws IOException {
+        validateProduct(product);
+
         List<Image> images = Arrays.stream(files)
                 .filter(file -> file != null && file.getSize() > 0)
                 .map(file -> {
@@ -50,6 +52,25 @@ public class ProductService {
             productRepository.save(product);
         }
     }
+
+    private void validateProduct(Product product) {
+        if (product.getTitle() == null || product.getTitle().trim().isEmpty()) {
+            throw new IllegalArgumentException("Title cannot be empty");
+        }
+        if (product.getDescription() == null || product.getDescription().trim().isEmpty()) {
+            throw new IllegalArgumentException("Description cannot be empty");
+        }
+        if (product.getPrice() <= 0) {
+            throw new IllegalArgumentException("Price must be greater than 0");
+        }
+        if (product.getCity() == null || product.getCity().trim().isEmpty()) {
+            throw new IllegalArgumentException("City cannot be empty");
+        }
+        if (product.getAuthor() == null || product.getAuthor().trim().isEmpty()) {
+            throw new IllegalArgumentException("Author cannot be empty");
+        }
+    }
+
 
 
     public void updateProductFields(Long id, String title, String description, Integer price, String city, String author) {

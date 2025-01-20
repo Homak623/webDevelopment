@@ -57,44 +57,53 @@ public class ProductController {
     }
 
     @PostMapping("/product/update/{id}")
-    public String updateProduct(@PathVariable long id,
+    public String updateProduct(@PathVariable Long id,
                                 @Valid Product product,
                                 BindingResult bindingResult,
-                                Model model
-                                ) {
+                                Model model) {
+
+        // Загружаем текущий объект Product из базы данных
+        Product originalProduct = productService.getProductsById(id);
 
         if (bindingResult.hasErrors()) {
+            // Передаем ошибки и оригинальный объект в модель
             model.addAttribute("errors", bindingResult.getFieldErrors());
-            model.addAttribute("product", product);
+            model.addAttribute("product", originalProduct); // Отображаем оригинальные данные
+
             return "product-info";
         }
-        else {
-            productService.updateProductFields(
-                    id,
-                    product.getTitle(),
-                    product.getDescription(),
-                    product.getPrice(),
-                    product.getCity(),
-                    product.getAuthor()
-            );
-            return "redirect:/product/" + id;
-        }
+
+        // Если ошибок нет, обновляем объект в базе
+        productService.updateProductFields(
+                id,
+                product.getTitle(),
+                product.getDescription(),
+                product.getPrice(),
+                product.getCity(),
+                product.getAuthor()
+        );
+
+        return "redirect:/product/" + id;
     }
 
+
     @PostMapping("/product/create")
-    public String createProduct(@Valid @ModelAttribute Product product,
+    public String createProduct(@Valid Product product,
                                 @RequestParam(name = "file1", required = false) MultipartFile file1,
                                 @RequestParam(name = "file2", required = false) MultipartFile file2,
                                 @RequestParam(name = "file3", required = false) MultipartFile file3,
                                 BindingResult bindingResult,
-                                Model model) throws IOException {
+                                Model model) throws IOException
+    {
+
         if (bindingResult.hasErrors()) {
             model.addAttribute("errors", bindingResult.getFieldErrors());
             model.addAttribute("product", product);
-            return "products";
+            return "redirect:/";
         }
-        productService.saveProducts(product, file1, file2, file3);
-        return "redirect:/";
+
+            productService.saveProducts(product, file1, file2, file3);
+            return "redirect:/";
     }
 
     @PostMapping("/product/delete/{id}")
